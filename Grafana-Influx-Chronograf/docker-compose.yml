@@ -1,0 +1,39 @@
+version: '3.3'
+services:
+  influxdb:
+    image: influxdb:1.8-alpine
+    container_name: influxdb
+    restart: always
+    environment:
+      - INFLUXDB_DB=MONITORING
+      - INFLUXDB_ADMIN_USER=alex
+      - INFLUXDB_ADMIN_PASSWORD=alex
+    ports:
+      - '8086:8086'
+    volumes:
+      - .\influx:/var/lib/influxdb
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana-server
+    restart: always
+    depends_on:
+      - influxdb
+    environment:
+      - GF_SECURITY_ADMIN_USER=alex
+      - GF_SECURITY_ADMIN_PASSWORD=alex
+      - GF_INSTALL_PLUGINS=
+    links:
+      - influxdb
+    ports:
+      - '3000:3000'
+    volumes:
+      - .\grafana:/var/lib/grafana
+ 
+  chronograf:
+    image: chronograf:1.5
+    volumes:
+        - .\chronograf:/var/lib/chronograf
+    ports:
+        - 127.0.0.1:8888:8888
+    restart: always
